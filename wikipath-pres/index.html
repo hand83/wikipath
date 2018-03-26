@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Wikipath Presentation</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Wikipath Presentation">
+  <meta name="author" content="Andras Horvath">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/codefont.css"></link>
+<link rel=stylesheet href="./assets/css/codemargin.css"></link>
+<link rel=stylesheet href="./assets/css/outmargin.css"></link>
+<link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Wikipath Presentation</h1>
+    <h2>Wikipedia referring page calculator</h2>
+    <p>Andras Horvath<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h3>Introduction</h3>
+  </hgroup>
+  <article data-timings="">
+    <p>&nbsp;<br>
+Following up references for a certain topic is a measure of importance.<br>
+Reference crosslinking is a major field of network studies.<br>
+&nbsp;<br>
+&nbsp;<br>
+Wikipath application allows you to access Wikipedia referencing information.</p>
+
+<ul>
+<li>Extracts the number of references to any Wikipedia article</li>
+<li>Extracts references to random Wikipedia articles</li>
+<li>Plots the number of references on a histogram</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="codefont codemargin" id="slide-2" style="background:;">
+  <hgroup>
+    <h3>Assessing references for a single article</h3>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>You can submit any expression to get if it is referenced - the application returns the number 
+of references.<br></li>
+<li>The application uses the &quot;Special:WhatLinksHere&quot; function of Wikipedia which 
+lists the referring Wikipedia pages to the selected article.<br></li>
+</ul>
+
+<p>The main function:    </p>
+
+<p>Result for &quot;coursera&quot; is: 130.<br>
+Result for &quot;io2012&quot; is: &#39;io2012&#39; article does not exist on Wikipedia..  </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="codefont codemargin outmargin" id="slide-3" style="background:;">
+  <hgroup>
+    <h3>Random articles</h3>
+  </hgroup>
+  <article data-timings="">
+    <p>Random Wikipedia articles are obtained by the &quot;Special:Random&quot; Wikipedia function.  </p>
+
+<ul>
+<li>You can specify the number of random runs</li>
+<li>The app obtains the number of referring pages for each</li>
+<li>The app stores the name of the randomly selected articles</li>
+<li>Finally, it plots the results on a googleVis histogram</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h3>Histogram of reference numbers to 5699 random Wikipedia articles</h3>
+  </hgroup>
+  <article data-timings="">
+    <p><img src="assets/fig/histdisplay-1.png" alt="plot of chunk histdisplay"> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Introduction'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Assessing references for a single article'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Random articles'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Histogram of reference numbers to 5699 random Wikipedia articles'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <script src="shared/shiny.js" type="text/javascript"></script>
+  <script src="shared/slider/js/jquery.slider.min.js"></script>
+  <script src="shared/bootstrap/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="shared/slider/css/jquery.slider.min.css"></link>
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>

@@ -1,0 +1,214 @@
+---
+title       : Wikipath Presentation
+subtitle    : Wikipedia referring page calculator
+author      : Andras Horvath
+job         :
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [shiny]     # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+
+
+---
+### Introduction
+&nbsp;  
+Following up references for a certain topic is a measure of importance.  
+Reference crosslinking is a major field of network studies.  
+&nbsp;  
+&nbsp;  
+Wikipath application allows you to access Wikipedia referencing information.
+- Extracts the number of references to any Wikipedia article
+- Extracts references to random Wikipedia articles
+- Plots the number of references on a histogram
+
+
+--- .codefont .codemargin
+### Assessing references for a single article
+  
+- You can submit any expression to get if it is referenced - the application returns the number 
+of references.  
+- The application uses the "Special:WhatLinksHere" function of Wikipedia which 
+lists the referring Wikipedia pages to the selected article.  
+  
+```{r functions, echo = FALSE}
+library(RCurl)
+library(XML)
+suppressPackageStartupMessages(library(googleVis))
+
+##### FUNCTION: returns parsed HTML from URL
+##
+htmlParser <- function(link) {
+  connection <- getURL(link, .opts = list(ssl.verifypeer = FALSE), followlocation=TRUE, .mapUnicode = FALSE)
+  htmlParse(connection, asText = TRUE)
+}
+
+###### FUNCTION: tests if Wikipedia article exists. Returns its exact title if exists
+## uses htmlParser()
+wikiExists <- function(term) {
+  term <- gsub(" ", "_", term)
+  term <- gsub("[^[:graph:]]+", "", term)
+  term <- gsub("[%{}<>]+", "", term)
+  term <- gsub("\\[+", "", term)
+  term <- gsub("\\]+", "", term)
+  wikiURL <- "https://en.wikipedia.org/wiki/"
+  link <- paste0(wikiURL, term)
+  html <- htmlParser(link)
+  MSG <- xpathSApply(html, "//td/b", xmlValue)[1]
+  nofoundMSG <- "Wikipedia does not have an article with this exact name."
+  if (MSG == nofoundMSG) {
+    FALSE
+  } else {
+    redirected <- xpathSApply(html, "//link[@rel = 'canonical']/@href")
+    gsub(wikiURL, "", unname(redirected))
+  }
+}
+
+##### FUNCTION: reads referencing page titles on te current page
+##
+readValues <- function(html){
+  values <- character()
+  MSG <- xpathSApply(html, "//body/div/div/div/p", xmlValue)[1]
+  foundvaluesMSG <- "The following pages link to"
+  if (grepl(foundvaluesMSG, MSG)){
+    values <- xpathSApply(html, 
+                  "//ul//a[@title and starts-with(@href, '/wiki/') and 
+                  not(contains(@href, ':')) and
+                  not(@class) and
+                  not(@accesskey)
+                  ]", xmlValue)
+  }
+  length(values)
+}
+
+##### FUNCTION: finds and returns the forward paging link
+##
+stepForward <- function(html) {
+  relative <- xpathSApply(html, 
+                "//a[
+                contains(@title, 'Special:WhatLinksHere/') and
+                contains(@href, '&from=') and
+                contains(@href, '&back=') and
+                not(contains(@href, '&hide')) and
+                not(contains(@href, '&limit'))
+                ]/@href")
+
+  rightIndices <- function(rel) {
+    posfrom <- regexpr("&from=[0-9]+", rel)
+    posback <- regexpr("&back=[0-9]+", rel)
+    fromvalue <- substr(rel, posfrom+6, posfrom + unlist(attributes(posfrom)[1]) - 1)
+    backvalue <- substr(rel, posback+6, posback + unlist(attributes(posback)[1]) - 1)
+    if (fromvalue != backvalue) {
+      TRUE
+    } else FALSE
+  }
+  forwardlink <- unique(unname(relative))
+  rightselect <- sapply(forwardlink, rightIndices)
+  rightselect <- unname(rightselect)
+  forwardlink <- forwardlink[rightselect]
+  if (length(forwardlink) == 1) {
+    wikiShortURL <- "https://en.wikipedia.org"
+    paste0(wikiShortURL, forwardlink)
+  } else FALSE
+}
+
+##### FUNCTION: collects all referencing page titles 
+## uses htmlParser()
+## uses stepForward()
+collector <- function(wikiterm) {
+  whatLinksURL1 <- "https://en.wikipedia.org/w/index.php?title=Special%3AWhatLinksHere&target="
+  whatLinksURL2 <- "&namespace=0"
+  stepURL <- paste0(whatLinksURL1, wikiterm, whatLinksURL2)
+  refnumber <- 0
+  while (stepURL != FALSE) {
+    wikiLinksHTML <- htmlParser(stepURL)
+    refnumber <- refnumber + readValues(wikiLinksHTML)
+    stepURL <- stepForward(wikiLinksHTML)
+  }
+  refnumber
+}
+```
+  
+The main function:    
+  
+```{r singleentry, echo = FALSE}
+## uses wikiExists()
+## uses collector()
+inputFunction <- function(inputterm) {
+  destExpression <- inputterm
+  destWiki <- wikiExists(destExpression)    # Tests if Wikipedia article exists. 
+                                            # Returns its exact title if exists
+  if (destWiki != FALSE) {
+    collector(destWiki)                     # Collects all referencing page titles and counts them
+  } else paste0("'", destExpression, "'", " article does not exist on Wikipedia.")
+}
+linkcounts1 <- inputFunction("Coursera");
+linkcounts2 <- inputFunction("io2012")
+```
+  
+Result for "coursera" is: `r linkcounts1`.  
+Result for "io2012" is: `r linkcounts2`.  
+
+
+--- .codefont .codemargin .outmargin
+### Random articles
+Random Wikipedia articles are obtained by the "Special:Random" Wikipedia function.  
+- You can specify the number of random runs
+- The app obtains the number of referring pages for each
+- The app stores the name of the randomly selected articles
+- Finally, it plots the results on a googleVis histogram
+
+```{r randomentry, echo = FALSE}
+## uses htmlParser()
+## uses collector()
+randomizer <- function(n){
+  randomURL <- "https://en.wikipedia.org/wiki/Special:Random"
+  sets <- numeric()
+  setnames <- character()
+  for (i in 1:n) {
+    randomHTML <- htmlParser(randomURL)     # Returns parsed HTML from URL
+    redirected <- xpathSApply(randomHTML, "//link[@rel = 'canonical']/@href")
+    wikiURL <- "https://en.wikipedia.org/wiki/"
+    term <- gsub(wikiURL, "", unname(redirected))
+    termname <- xpathSApply(randomHTML, "//h1", xmlValue)
+    numrefs <- collector(term)              # Collects all referencing page titles and counts them
+    sets <- c(sets, numrefs)
+    setnames <- c(setnames, termname)
+  }
+  names(sets) <- setnames
+  sets
+}
+```
+
+
+---
+### Histogram of reference numbers to 5699 random Wikipedia articles
+
+```{r histdisplay, echo = FALSE}
+library(ggplot2)
+library(grid)
+
+df <- read.table("wikips.txt")
+df <- df[df$refers < 5000, ]
+title <- paste("Distribution of references to", length(df$refers), "random Wikipedia pages", sep = " ")
+ghlin <- ggplot(data = df, aes(refers)) +
+            geom_histogram(fill = "#5aaeff") +
+            ggtitle("Histogram - linear") +
+            labs(x = "No. of referring pages", y = "frequency")
+
+df$refers <- df$refers + 1
+ghlog <- ggplot(data = df, aes(refers)) +
+            geom_histogram(fill = "#5aaeff") +
+            scale_x_log10() +
+            ggtitle("Histogram - log") +
+            labs(x = "No. of referring pages", y = "frequency")
+
+
+grid.newpage() ## display figures in a multiplot
+pushViewport(viewport(layout = grid.layout(1 , 2)))
+print(ghlin, vp = viewport(layout.pos.row = 1, layout.pos.col = 1))
+print(ghlog, vp = viewport(layout.pos.row = 1, layout.pos.col = 2))
+
+```
+
